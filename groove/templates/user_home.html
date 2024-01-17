@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groove</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('user_home_page') }}">Groove</a>
+            <form class="d-flex" action="{{ url_for('search_page') }}" method="post">
+                <input class="form-control me-2" type="search" placeholder="Search Songs, Albums" aria-label="Search" name="search">
+                <button class="btn btn-outline-light" type="submit">Search</button>
+            </form>
+            <div>
+                {% if user.role_id == 1 %}
+                <a class="btn btn-outline-light ms-2" href="{{ url_for('creator_register_page') }}">Become a Creator</a>
+                {% endif %}
+                {% if user.role_id == 2 %}
+                <a class="btn btn-outline-light ms-2" href="{{ url_for('creator_home_page') }}">Creator Page</a>
+                {% endif %}
+                <a class="btn btn-outline-light ms-2" href="{{ url_for('playlists_page') }}">Your Playlists</a>
+            </div>
+            <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Profile
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><a class="dropdown-item" href="#">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mt-5">
+        <div class="section">
+            <div class="d-flex justify-content-between align-items-center">
+            <h2>Recommended Tracks</h2>
+            <a class="btn btn-dark" href="{{ url_for('user_home_page') }}">Show More</a>
+            </div>
+            <div class="row">
+                {% for song in songs %}
+                <div class="card" style="width: 20rem; margin-right: 5px; margin-left: 5px;">
+                    <img src="./static/groove_logo_darkmode.png" class="card-img-top" alt="song_name">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ song.name }}</h5>
+                        <div class="row">
+                            <div class="col">
+                                <p class="card-subtitle mb-1">Artist - {{ song.artist }}</p>
+                                <p class="card-subtitle mb-1">Genre - {{ song.genre.name }}</p>
+                            </div>
+                            <div class="col">
+                                <p class="card-subtitle mb-1">Rating - {{ song.rating }}</p>
+                                <p class="card-subtitle mb-1"></p>Duration - {{ song.duration|format_duration }}
+                            </div>
+                        </div>
+                        <div class="justify-content-between align-items-center">
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#xlModal{{ song.id }}">View Lyrics</button>
+                            <a href="#" class="btn btn-dark">Play</a>
+                            <a href="#" class="btn btn-dark">Rate</a>
+                            <div class="modal fade" id="xlModal{{ song.id }}" tabindex="-1" aria-labelledby="xlModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="xlModalLabel">Song Lyrics - {{ song.name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{ song.lyrics }}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <p>Date uploaded - {{ song.date_uploaded }}</p>
+                                            <p>Artist - {{ song.artist }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <br>
+        <div class="section mt-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Your Playlists</h2>
+                <button class="btn btn-dark">Create New Playlist</button>
+            </div>
+            <div class="row">
+                {% for playlist in playlists %}
+                <div class="card" style="width: 20rem;margin-right: 5px; margin-left: 5px;">
+                    <img src="./static/groove_logo_darkmode.png" class="card-img-top" alt="...">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ playlist.name }}</h5>
+                        <p class="card-subtitle mb-2">{{ playlist.description }}</p>
+                        <div style="margin-top: auto;">
+                            <a href="#" class="btn btn-dark">View your Playlist</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <br>
+        <div class="section">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>{{ genre.name }}</h2>
+            </div>
+            <div class="row">
+                {% for song in genre_songs %}
+                <div class="card" style="width: 20rem; margin-right: 5px; margin-left: 5px;">
+                    <img src="./static/groove_logo_darkmode.png" class="card-img-top" alt="song_name">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ song.name }}</h5>
+                        <div class="row">
+                            <div class="col">
+                                <p class="card-subtitle mb-1">Artist - {{ song.artist }}</p>
+                                <p class="card-subtitle mb-1">Genre - {{ song.genre.name }}</p>
+                            </div>
+                            <div class="col">
+                                <p class="card-subtitle mb-1">Rating - {{ song.rating }}</p>
+                                <p class="card-subtitle mb-1"></p>Duration - {{ song.duration|format_duration }}
+                            </div>
+                        </div>
+                        <div class="justify-content-between align-items-center">
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#xlModal{{ song.id }}">View Lyrics</button>
+                            <a href="#" class="btn btn-dark">Play</a>
+                            <a href="#" class="btn btn-dark">Rate</a>
+                            <div class="modal fade" id="xlModal{{ song.id }}" tabindex="-1" aria-labelledby="xlModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="xlModalLabel">Song Lyrics - {{ song.name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{ song.lyrics }}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <p>Date uploaded - {{ song.date_uploaded }}</p>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
