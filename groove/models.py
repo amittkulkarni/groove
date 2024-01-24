@@ -21,9 +21,12 @@ class Song(db.Model):
         self.times_played += 1
         db.session.commit()
 
-    def float_to_minutes(self):
-        duration = str(self.duration).replace('.', ':')
-        return duration
+    def average_song_rating(self):
+        average = db.session.query(db.func.avg(SongRating.rating)).filter(SongRating.song_id == self.id).scalar()
+        if average is None:
+            return None
+        else:
+            return round(average, 1)
 
 
 class Album(db.Model):

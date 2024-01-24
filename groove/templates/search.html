@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Groove</a>
+            <a class="navbar-brand" href="{{ url_for('user_home_page') }}">Groove</a>
             <form class="d-flex" method="POST" action="{{ url_for('search_page') }}">
                 <input class="form-control me-2" type="search" placeholder="Search Songs, Albums" aria-label="Search" name="search">
                 <button class="btn btn-outline-light" type="submit">Search</button>
