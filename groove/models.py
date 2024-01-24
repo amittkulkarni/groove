@@ -17,10 +17,6 @@ class Song(db.Model):
     times_played = db.Column(db.Integer, default=0, nullable=False)
     flag = db.Column(db.Boolean, default=0)
 
-    def increment_count(self):
-        self.times_played += 1
-        db.session.commit()
-
     def average_song_rating(self):
         average = db.session.query(db.func.avg(SongRating.rating)).filter(SongRating.song_id == self.id).scalar()
         if average is None:

@@ -66,15 +66,26 @@ def login_form():
     if not user.check_password(password):
         flash('Password is incorrect.')
         return redirect(url_for('login_page'))
+    if user.blacklist:
+        flash('You are not allowed to use the app.')
+        return redirect(url_for('login_page'))
 
     session['id'] = user.id
     return redirect(url_for('user_home_page'))
 
 
+@app.route('/logout')
+def logout():
+    session.pop('id')
+    return redirect(url_for('start_page'))
+
+
+# User Pages
+
+
 @app.route('/user_home')
 def user_home_page():
     if 'id' not in session:
-        flash('Login to continue.')
         return redirect(url_for('login_page'))
     songs = Song.query.filter(Song.flag == 0).order_by(func.random()).limit(4).all()
     playlists = Playlist.query.filter_by(user_id=session['id']).limit(4)
@@ -93,25 +104,99 @@ def user_home_page():
 @app.route('/user_home', methods=['POST'])
 def search_page():
     if 'id' not in session:
-        flash('Login to continue.')
         return redirect(url_for('login_page'))
     search = request.form.get('search')
     if search is None or search == '':
         return redirect(url_for('user_home_page'))
-    songs = Song.query.filter(
+    songs = Song.query.join(Genre).filter(
         or_(
             Song.name.ilike('%' + search + '%'),
             Song.artist.ilike('%' + search + '%'),
-            )
-        ).all()
+            Genre.name.ilike('%' + search + '%')
+        )
+    ).all()
     albums = Album.query.filter(
         or_(
             Album.name.ilike('%' + search + '%'),
             Album.artist.ilike('%' + search + '%'),
-            )
-        ).all()
+        )
+    ).all()
     return render_template('search.html', songs=songs, albums=albums)
 
+
+@app.route('/user_home/rate/<int:song_id>', methods=['POST'])
+def rate_page(song_id):
+    rating = request.form['rating']
+    if rating:
+        rating = SongRating(rating=rating, song_id=song_id, user_id=session['id'])
+        db.session.add(rating)
+        db.session.commit()
+    return redirect(url_for('user_home_page'))
+
+
+@app.route('/play_song/<int:song_id>')
+def play_song_page(song_id):
+    song = Song.query.get(song_id)
+    song.times_played += 1
+    db.session.commit()
+    return redirect(request.referrer)
+
+
+@app.route('/view_playlists')
+def playlists_page():
+    if 'id' not in session:
+        return redirect(url_for('login_page'))
+    user = User.query.filter_by(id=session['id']).first()
+    playlists = Playlist.query.filter_by(user_id=user.id)
+    return render_template('view_playlist.html', playlists=playlists, user=user)
+
+
+@app.route('/view_playlists/<int:playlist_id>')
+def playlist_songs_page(playlist_id):
+    user = User.query.get(session['id'])
+    playlist = Playlist.query.get(playlist_id)
+    playlist_songs = PlaylistSong.query.filter_by(playlist_id=playlist.id).all()
+    song_id_list = [song.song_id for song in playlist_songs]
+    songs = Song.query.filter(Song.id.in_(song_id_list), Song.flag == 0).all()
+    return render_template('playlist_songs.html', user=user, playlist=playlist, songs=songs)
+
+
+@app.route('/create_playlist')
+def create_playlist_page():
+    if 'id' not in session:
+        return redirect(url_for('login_page'))
+    songs = Song.query.filter(Song.flag == 0).order_by(func.random()).limit(7).all()
+    user = User.query.filter_by(id=session['id']).first()
+    return render_template('create_playlist.html', songs=songs, user=user)
+
+
+@app.route('/create_playlist', methods=['POST'])
+def create_playlist_post():
+    song_ids = request.form.getlist('song')
+    playlist_name = request.form['playlist_name']
+    description = request.form['description']
+
+    playlist = Playlist(user_id=session['id'], name=playlist_name, description=description)
+    db.session.add(playlist)
+    db.session.commit()
+
+    for song_id in song_ids:
+        song = Song.query.get(song_id)
+        if song:
+            playlist.songs.append(song)
+    db.session.commit()
+    return redirect(url_for('playlists_page'))
+
+
+@app.route('/user_home/view_album/<int:album_id>')
+def album_songs_page(album_id):
+    user = User.query.get(session['id'])
+    album = Album.query.get(album_id)
+    songs = Song.query.filter_by(album_id=album_id, flag=0).all()
+    return render_template('album_songs.html', user=user, album=album, songs=songs)
+
+
+# Creator Pages
 
 @app.route('/creator_register')
 def creator_register_page():
@@ -148,14 +233,14 @@ def creator_register_form():
 
 @app.route('/creator_home')
 def creator_home_page():
-    if 'id' in session:
-        creator = session['id']
-    else:
-        flash('Login to continue')
+    user = User.query.get(session['id'])
+    if user.role.name != 'creator':
         return redirect(url_for('login_page'))
+    creator = session['id']
     return render_template('creator_home.html',
                            total_songs_uploaded=len(Song.query.filter(Song.creator == creator).all()),
-                           average_rating=1,
+                           average_rating=round(db.session.query(func.avg(SongRating.rating))
+                                                .scalar(), 2) if not None else None,
                            total_albums=len(Album.query.filter(Album.creator == creator).all()),
                            songs=Song.query.filter(Song.creator == creator, Song.flag == 0).all(),
                            albums=Album.query.filter(Album.creator == creator).all())
@@ -214,44 +299,6 @@ def delete_song_post(song_id):
         return redirect(url_for('admin_home_page'))
 
 
-@app.route('/view_playlists')
-def playlists_page():
-    if 'id' not in session:
-        flash('Login to continue.')
-        return redirect(url_for('login_page'))
-    user = User.query.filter_by(id=session['id']).first()
-    playlists = Playlist.query.filter_by(user_id=user.id)
-    return render_template('view_playlist.html', playlists=playlists, user=user)
-
-
-@app.route('/create_playlist')
-def create_playlist_page():
-    if 'id' not in session:
-        flash('Login to continue.')
-        return redirect(url_for('login_page'))
-    songs = Song.query.filter(Song.flag == 0).order_by(func.random()).limit(7).all()
-    user = User.query.filter_by(id=session['id']).first()
-    return render_template('create_playlist.html', songs=songs, user=user)
-
-
-@app.route('/create_playlist', methods=['POST'])
-def create_playlist_post():
-    song_ids = request.form.getlist('song')
-    playlist_name = request.form['playlist_name']
-    description = request.form['description']
-
-    playlist = Playlist(user_id=session['id'], name=playlist_name, description=description)
-    db.session.add(playlist)
-    db.session.commit()
-
-    for song_id in song_ids:
-        song = Song.query.get(song_id)
-        if song:
-            playlist.songs.append(song)
-    db.session.commit()
-    return redirect(url_for('playlists_page'))
-
-
 @app.route('/delete_album/<int:album_id>')
 def delete_album_page(album_id):
     return render_template('delete_album.html', album=Album.query.get(album_id))
@@ -264,22 +311,6 @@ def delete_album_post(album_id):
     db.session.commit()
     flash('Album successfully deleted.')
     return redirect(url_for('creator_home_page'))
-
-
-@app.route('/user_home/rate/<int:song_id>', methods=['POST'])
-def rate_page(song_id):
-    rating = request.form['rating']
-    if rating:
-        rating = SongRating(rating=rating, song_id=song_id, user_id=session['id'])
-        db.session.add(rating)
-        db.session.commit()
-    return redirect(url_for('user_home_page'))
-
-
-@app.route('/admin_dashboard')
-def admin_home_page():
-    genre_chart()
-    return render_template('admin_home.html')
 
 
 @app.route('/creator_home/edit_song/<int:song_id>', methods=['POST'])
@@ -327,20 +358,7 @@ def edit_album_page(album_id):
     return redirect(url_for('creator_home_page'))
 
 
-@app.route('/view_playlists/<int:playlist_id>')
-def playlist_songs_page(playlist_id):
-    user = User.query.get(session['id'])
-    playlist = Playlist.query.get(playlist_id)
-    playlist_songs = PlaylistSong.query.filter_by(playlist_id=playlist.id).all()
-    song_id_list = [song.song_id for song in playlist_songs]
-    songs = Song.query.filter(Song.id.in_(song_id_list), Song.flag == 0).all()
-    return render_template('playlist_songs.html', user=user, playlist=playlist, songs=songs)
-
-
-@app.route('/logout')
-def logout():
-    session.pop('id')
-    return redirect(url_for('start_page'))
+# Admin Pages
 
 
 @app.route('/admin_login')
@@ -367,10 +385,40 @@ def admin_login_form():
     return redirect(url_for('admin_home_page'))
 
 
+@app.route('/admin_dashboard')
+def admin_home_page():
+    user = User.query.get(session['id'])
+    if user.role.name != 'admin':
+        return redirect(url_for('login_page'))
+    genre_chart()
+    top_songs_chart()
+    creators_bar_chart()
+    return render_template('admin_home.html',
+                           users=len(User.query.filter_by(role_id=1).all()),
+                           creators=len(User.query.filter_by(role_id=2).all()),
+                           songs=len(Song.query.all()),
+                           genres=len(Genre.query.all()),
+                           albums=len(Album.query.all()),
+                           playlists=len(Playlist.query.all()))
+
+
 @app.route('/admin_tracks')
 def admin_tracks_page():
+    user = User.query.get(session['id'])
+    if user.role.name != 'admin':
+        return redirect(url_for('login_page'))
     genres = Genre.query.all()
     return render_template('admin_tracks.html', genres=genres)
+
+
+@app.route('/admin_users')
+def admin_users_page():
+    user = User.query.get(session['id'])
+    if user.role.name != 'admin':
+        return redirect(url_for('login_page'))
+    users = User.query.filter_by(role_id=1).all()
+    creators = User.query.filter_by(role_id=2).all()
+    return render_template('admin_users.html', users=users, creators=creators)
 
 
 @app.route('/flag_song/<int:song_id>', methods=['GET', 'POST'])
@@ -381,13 +429,6 @@ def flag_song(song_id):
     return redirect(url_for('admin_tracks_page'))
 
 
-@app.route('/admin_users')
-def admin_users_page():
-    users = User.query.filter_by(role_id=1).all()
-    creators = User.query.filter_by(role_id=2).all()
-    return render_template('admin_users.html', users=users, creators=creators)
-
-
 @app.route('/blacklist_user/<int:user_id>')
 def blacklist_user(user_id):
     user = User.query.get(user_id)
@@ -396,10 +437,43 @@ def blacklist_user(user_id):
     return redirect(url_for('admin_users_page'))
 
 
+# Matplotlib functions
+
 def genre_chart():
     genre_songs = db.session.query(Genre.name, db.func.count(Song.id)).join(Song).group_by(Genre.name).all()
     genres = [genre[0] for genre in genre_songs]
     song_count = [song[1] for song in genre_songs]
     plt.pie(song_count, labels=genres)
     plt.title('Genre Pie Chart')
+    plt.tight_layout()
     plt.savefig('C:/Users/DELL/Desktop/Groove/groove/static/genre_pie_chart.png')
+    plt.close()
+
+
+def top_songs_chart():
+    songs = db.session.query(Song.name, Song.times_played).order_by(Song.times_played.desc()).limit(10).all()
+    song_names = [song[0] for song in songs]
+    play_counts = [song[1] for song in songs]
+    plt.bar(song_names, play_counts, color='skyblue')
+    plt.xlabel('Songs')
+    plt.ylabel('Times Played')
+    plt.title('Top Played Songs')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.savefig('C:/Users/DELL/Desktop/Groove/groove/static/top_songs_chart.png')
+    plt.close()
+
+
+def creators_bar_chart():
+    creators = (db.session.query(User.username, func.count(Song.id))
+                .join(User, User.id == Song.creator)
+                .group_by(User.username)
+                .order_by(func.count(Song.id).desc())
+                .limit(10).all())
+    creator_list = [creator[0] for creator in creators]
+    upload_counts = [count[1] for count in creators]
+    plt.bar(creator_list, upload_counts, color='skyblue')
+    plt.xlabel('Number of Songs Uploaded')
+    plt.title('Most Active Creators')
+    plt.tight_layout()
+    plt.savefig('C:/Users/DELL/Desktop/Groove/groove/static/top_creators_chart.png')

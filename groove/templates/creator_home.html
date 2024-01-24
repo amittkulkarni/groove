@@ -3,139 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <title>Groove</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body class="bg-light">
-     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-         <div class="container">
-             <a class="navbar-brand" href="{{ url_for('user_home_page') }}">Groove Creators</a>
-             <a class="btn btn-outline-light ms-2" href="{{ url_for('user_home_page') }}">User Page</a>
-             <div>
-                <a class="btn btn-outline-light ms-2" href="{{ url_for('logout') }}">Logout</a>
-             </div>
-         </div>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <div class="my-5 text-center fs-2 fw-bold" style="font-family: 'Trebuchet MS'">
-            Creator's Dashboard
+        <a class="navbar-brand" href="{{ url_for('user_home_page') }}">Groove Creators</a>
+        <a class="btn btn-outline-light ms-2" href="{{ url_for('user_home_page') }}">User Page</a>
+        <div>
+            <a class="btn btn-outline-light ms-2" href="{{ url_for('logout') }}">Logout</a>
         </div>
-        <div class="row g-4">
-            <div class="col-md-4 mb-5">
-                <div class="card shadow-sm text-center">
-                    <div class="card-body">
-                        <h5>Total Songs Uploaded</h5>
-                        <h1 class="card-subtitle mt-3">{{ total_songs_uploaded }}</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-5">
-                <div class="card shadow-sm text-center">
-                    <div class="card-body">
-                        <h5>Average Rating</h5>
-                        <h1 class="card-subtitle mt-3">{{ average_rating }}</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-5">
-                <div class="card shadow-sm text-center">
-                    <div class="card-body">
-                        <h5>Total Albums</h5>
-                        <h1 class="card-subtitle mt-3">{{ total_albums }}</h1>
-                    </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="my-5 text-center fs-2 fw-bold" style="font-family: 'Trebuchet MS'">
+        Creator's Dashboard
+    </div>
+    <div class="row g-4">
+        <!-- Total Songs Uploaded Card -->
+        <div class="col-md-4 mb-5">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h5>Total Songs Uploaded</h5>
+                    <h1 class="card-subtitle mt-3">{{ total_songs_uploaded }}</h1>
                 </div>
             </div>
         </div>
-        {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-success d-flex justify-content-between">{{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
-                {% endfor %}
-              {% endif %}
-        {% endwith %}
-        <div class="row g-4">
-            <div class="col-md-6">
-                <h5>Your Albums</h5>
-                <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#uploadAlbumModal">Upload Album</button>
-                    <div class="modal fade" id="uploadAlbumModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">#}
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalLabel">Upload Song</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form method="POST" action="{{ url_for('creator_home_upload') }}">
-                                        <input type="hidden" name="upload" value="album">
-                                        <div class="mb-3">
-                                            <label for="title" class="form-label">Title:</label>
-                                            <input type="text" class="form-control" id="title" name="albumTitle" placeholder="Enter title">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="artist" class="form-label">Artist:</label>
-                                            <input type="text" class="form-control" id="artist" name="albumArtist" placeholder="Enter artist">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="releaseDate" class="form-label">Release Date:</label>
-                                            <input type="date" class="form-control" name="albumReleaseDate" id="releaseDate">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="albumSongs" class="form-label">Select Songs:</label>
-                                            <select multiple class="form-select" id="albumSongs" name="albumSongs">
+        <!-- Average Rating Card -->
+        <div class="col-md-4 mb-5">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h5>Average Rating</h5>
+                    <h1 class="card-subtitle mt-3">{{ average_rating }}</h1>
+                </div>
+            </div>
+        </div>
+        <!-- Total Albums Card -->
+        <div class="col-md-4 mb-5">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h5>Total Albums</h5>
+                    <h1 class="card-subtitle mt-3">{{ total_albums }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success d-flex justify-content-between">{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="row g-4">
+        <!-- Albums Column -->
+        <div class="col-md-6">
+            <h5>Your Albums</h5>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#uploadAlbumModal">
+                    Upload Album
+                </button>
+                <!-- Upload Album Modal -->
+                <div class="modal fade" id="uploadAlbumModal" tabindex="-1" aria-labelledby="modalLabel"
+                     aria-hidden="true">#}
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel">Upload Song</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ url_for('creator_home_upload') }}">
+                                    <input type="hidden" name="upload" value="album">
+                                    <div class="mb-3">
+                                        <label for="title" class="form-label">Title:</label>
+                                        <input type="text" class="form-control" id="title" name="albumTitle"
+                                               placeholder="Enter title">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="artist" class="form-label">Artist:</label>
+                                        <input type="text" class="form-control" id="artist" name="albumArtist"
+                                               placeholder="Enter artist">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="releaseDate" class="form-label">Release Date:</label>
+                                        <input type="date" class="form-control" name="albumReleaseDate"
+                                               id="releaseDate">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="albumSongs" class="form-label">Select Songs:</label>
+                                        <select multiple class="form-select" id="albumSongs" name="albumSongs">
                                             {% for song in songs %}
                                                 <option value="{{ song.id }}">{{ song.name }}</option>
                                             {% endfor %}
-                                            </select>
-                                            <small class="text-muted">Use CTRL to select multiple songs.</small>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Upload</button>
-                                        </div>
-                                    </form>
-                                </div>
+                                        </select>
+                                        <small class="text-muted">Use CTRL to select multiple songs.</small>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-                    {% for album in albums %}
+                </div>
+                {% for album in albums %}
                     <div class="d-flex justify-content-between align-items-center border rounded p-2 my-2">
                         <span>{{ album.name }}</span>
                         <div>
-                            <button class="btn btn-dark btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#editAlbumModal{{ album.id }}">Edit</button>
+                            <button class="btn btn-dark btn-sm" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#editAlbumModal{{ album.id }}">Edit
+                            </button>
                             <a class="btn btn-dark btn-sm" href="{{ url_for('delete_album_post', album_id=album.id) }}">Delete</a>
                             <!-- Edit Album Modal -->
-                            <div class="modal fade" id="editAlbumModal{{ album.id }}" tabindex="-1" aria-labelledby="editAlbumModalLabel{{ album.id }}" aria-hidden="true">
+                            <div class="modal fade" id="editAlbumModal{{ album.id }}" tabindex="-1"
+                                 aria-labelledby="editAlbumModalLabel{{ album.id }}" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editAlbumModalLabel{{ album.id }}">Edit Song</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <h5 class="modal-title" id="editAlbumModalLabel{{ album.id }}">Edit
+                                                Song</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <form method="POST" action="{{ url_for('edit_album_page', album_id=album.id) }}">
+                                            <form method="POST"
+                                                  action="{{ url_for('edit_album_page', album_id=album.id) }}">
                                                 <div class="mb-3">
-                                                    <label for="albumTitle{{ album.id }}" class="form-label">Title:</label>
-                                                    <input type="text" class="form-control" id="albumTitle{{ album.id }}" name="albumTitle" value="{{ album.name }}">
+                                                    <label for="albumTitle{{ album.id }}"
+                                                           class="form-label">Title:</label>
+                                                    <input type="text" class="form-control"
+                                                           id="albumTitle{{ album.id }}" name="albumTitle"
+                                                           value="{{ album.name }}">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="albumArtist{{ album.id }}" class="form-label">Artist:</label>
-                                                    <input type="text" class="form-control" id="albumArtist{{ album.id }}" name="albumArtist" value="{{ album.artist }}">
+                                                    <label for="albumArtist{{ album.id }}"
+                                                           class="form-label">Artist:</label>
+                                                    <input type="text" class="form-control"
+                                                           id="albumArtist{{ album.id }}" name="albumArtist"
+                                                           value="{{ album.artist }}">
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="releaseDate" class="form-label">Release Date:</label>
-                                                    <input type="date" class="form-control" name="AlbumReleaseDate" id="releaseDate" value="{{ album.release_date }}">
+                                                    <input type="date" class="form-control" name="AlbumReleaseDate"
+                                                           id="releaseDate" value="{{ album.release_date }}">
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="albumSongs" class="form-label">Select Songs:</label>
-                                                    <select multiple class="form-select" id="albumSongs" name="albumSongs">
-                                                    {% for song in songs %}
-                                                        <option value="{{ song.id }}">{{ song.name }}</option>
-                                                    {% endfor %}
+                                                    <select multiple class="form-select" id="albumSongs"
+                                                            name="albumSongs">
+                                                        {% for song in songs %}
+                                                            <option value="{{ song.id }}">{{ song.name }}</option>
+                                                        {% endfor %}
                                                     </select>
                                                     <small class="text-muted">Use CTRL to select multiple songs.</small>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close
+                                                    </button>
                                                     <button type="submit" class="btn btn-primary">Save Changes</button>
                                                 </div>
                                             </form>
@@ -145,32 +177,39 @@
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
+                {% endfor %}
             </div>
+        </div>
 
-        <!-- Column for Songs -->
+        <!-- Songs Column -->
         <div class="col-md-6">
             <h5>Your Uploads</h5>
             <div class="d-grid gap-2">
-                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#uploadSongModal">Upload Song</button>
-                <div class="modal fade" id="uploadSongModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">#}
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#uploadSongModal">
+                    Upload Song
+                </button>
+                <!-- Upload Song Modal -->
+                <div class="modal fade" id="uploadSongModal" tabindex="-1" aria-labelledby="modalLabel"
+                     aria-hidden="true">#}
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modalLabel">Upload Song</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <form method="POST" action="{{ url_for('creator_home_upload') }}">
                                     <input type="hidden" name="upload" value="song">
                                     <div class="mb-3">
                                         <label for="title" class="form-label">Title:</label>
-                                        <input type="text" class="form-control" id="title" name="songTitle" placeholder="Enter title">
+                                        <input type="text" class="form-control" id="title" name="songTitle"
+                                               placeholder="Enter title">
                                     </div>
                                     <div class="mb-3">
                                         <label for="artist" class="form-label">Artist:</label>
-                                        <input type="text" class="form-control" id="artist" name="songArtist" placeholder="Enter artist">
+                                        <input type="text" class="form-control" id="artist" name="songArtist"
+                                               placeholder="Enter artist">
                                     </div>
                                     <div class="mb-3">
                                         <label for="genre" class="form-label">Genre:</label>
@@ -191,7 +230,8 @@
                                         <textarea class="form-control" id="lyrics" name="lyrics" rows="3"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                        </button>
                                         <button type="submit" class="btn btn-primary">Upload</button>
                                     </div>
                                 </form>
@@ -200,63 +240,78 @@
                     </div>
                 </div>
                 {% for song in songs %}
-                <div class="d-flex justify-content-between align-items-center border rounded p-2 my-2">
-                    <span>{{ song.name }}</span>
-                    <div>
-                        <button class="btn btn-dark btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#editSongModal{{ song.id }}">Edit</button>
-                        <a class="btn btn-dark btn-sm" href="{{ url_for('delete_song_post', song_id=song.id) }}">Delete</a>
-                        <!-- Edit Song Modal -->
-                        <div class="modal fade" id="editSongModal{{ song.id }}" tabindex="-1" aria-labelledby="editSongModalLabel{{ song.id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editSongModalLabel{{ song.id }}">Edit Song</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form method="POST" action="{{ url_for('edit_song_page', song_id=song.id) }}">
-                                            <div class="mb-3">
-                                                <label for="songTitle{{ song.id }}" class="form-label">Title:</label>
-                                                <input type="text" class="form-control" id="songTitle{{ song.id }}" name="songTitle" value="{{ song.name }}">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="songArtist{{ song.id }}" class="form-label">Artist:</label>
-                                                <input type="text" class="form-control" id="songArtist{{ song.id }}" name="songArtist" value="{{ song.artist }}">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="genre" class="form-label">Genre:</label>
-                                                <select class="form-select" id="genre" name="genre">
-                                                    <option selected>{{ song.genre.name }}</option>
-                                                    <option value="Pop">Pop</option>
-                                                    <option value="Jazz">Jazz</option>
-                                                    <option value="Rap">Rap</option>
-                                                    <option value="Hip Hop">Hip Hop</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="releaseDate" class="form-label">Release Date:</label>
-                                                <input type="date" class="form-control" name="SongReleaseDate" id="releaseDate" value="{{ song.release_date }}">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="lyrics" class="form-label">Lyrics:</label>
-                                                <textarea class="form-control" id="lyrics" name="lyrics" rows="3"></textarea>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                                            </div>
-                                        </form>
+                    <div class="d-flex justify-content-between align-items-center border rounded p-2 my-2">
+                        <span>{{ song.name }}</span>
+                        <div>
+                            <button class="btn btn-dark btn-sm" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#editSongModal{{ song.id }}">Edit
+                            </button>
+                            <a class="btn btn-dark btn-sm" href="{{ url_for('delete_song_post', song_id=song.id) }}">Delete</a>
+                            <!-- Edit Song Modal -->
+                            <div class="modal fade" id="editSongModal{{ song.id }}" tabindex="-1"
+                                 aria-labelledby="editSongModalLabel{{ song.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editSongModalLabel{{ song.id }}">Edit Song</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="POST"
+                                                  action="{{ url_for('edit_song_page', song_id=song.id) }}">
+                                                <div class="mb-3">
+                                                    <label for="songTitle{{ song.id }}"
+                                                           class="form-label">Title:</label>
+                                                    <input type="text" class="form-control" id="songTitle{{ song.id }}"
+                                                           name="songTitle" value="{{ song.name }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="songArtist{{ song.id }}"
+                                                           class="form-label">Artist:</label>
+                                                    <input type="text" class="form-control" id="songArtist{{ song.id }}"
+                                                           name="songArtist" value="{{ song.artist }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="genre" class="form-label">Genre:</label>
+                                                    <select class="form-select" id="genre" name="genre">
+                                                        <option selected>{{ song.genre.name }}</option>
+                                                        <option value="Pop">Pop</option>
+                                                        <option value="Jazz">Jazz</option>
+                                                        <option value="Rap">Rap</option>
+                                                        <option value="Hip Hop">Hip Hop</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="releaseDate" class="form-label">Release Date:</label>
+                                                    <input type="date" class="form-control" name="SongReleaseDate"
+                                                           id="releaseDate" value="{{ song.release_date }}">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="lyrics" class="form-label">Lyrics:</label>
+                                                    <textarea class="form-control" id="lyrics" name="lyrics"
+                                                              rows="3"></textarea>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 {% endfor %}
             </div>
         </div>
-        </div>
     </div>
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 </body>
 </html>

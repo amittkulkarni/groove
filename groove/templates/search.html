@@ -4,47 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Groove</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('user_home_page') }}">Groove</a>
-            <form class="d-flex" method="POST" action="{{ url_for('search_page') }}">
-                <input class="form-control me-2" type="search" placeholder="Search Songs, Albums" aria-label="Search" name="search">
-                <button class="btn btn-outline-light" type="submit">Search</button>
-            </form>
-
-            <div>
-                <button class="btn btn-outline-light ms-2">Become a Creator</button>
-                <button class="btn btn-outline-light ms-2">Your Playlists</button>
-            </div>
-            <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                Profile
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><a class="dropdown-item" href="#">Settings</a></li>
-                    <li><a class="dropdown-item" href="#">Logout</a></li>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('user_home_page') }}">Groove</a>
+        <form class="d-flex" method="POST" action="{{ url_for('search_page') }}">
+            <input class="form-control me-2" type="search" placeholder="Search Songs, Albums" aria-label="Search"
+                   name="search">
+            <button class="btn btn-outline-light" type="submit">Search</button>
+        </form>
+        <div>
+            <button class="btn btn-outline-light ms-2">Become a Creator</button>
+            <button class="btn btn-outline-light ms-2">Your Playlists</button>
         </div>
-    </nav>
+        <div>
+            <a class="btn btn-outline-light ms-2" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+</nav>
 
 
-    <div class="container mt-5">
-        <div class="section">
-            <div class="d-flex justify-content-between align-items-center">
+<div class="container mt-5">
+    <div class="section">
+        <div class="d-flex justify-content-between align-items-center">
             <h2>Search Results - Songs</h2>
-            </div>
-            <div class="row">
-                {% for song in songs %}
-                <div class="card" style="width: 20rem; margin-right: 5px; margin-left: 5px;">
-                    <img src="./static/groove_logo_darkmode.png" class="card-img-top" alt="groove">
+        </div>
+        <div class="row">
+            {% for song in songs %}
+                <!-- Song Card -->
+                <div class="card mx-1" style="width: 20rem;">
+                    <img src="/static/groove_logo_darkmode.png" class="card-img-top" alt="song_name">
                     <div class="card-body">
                         <h5 class="card-title">{{ song.name }}</h5>
                         <div class="row">
@@ -53,41 +47,93 @@
                                 <p class="card-subtitle mb-1">Genre - {{ song.genre.name }}</p>
                             </div>
                             <div class="col">
-                                <p class="card-subtitle mb-1">Rating - {{ song.rating }}</p>
-                                <p class="card-subtitle mb-1"></p>Duration - {{ song.duration }}
+                                <p class="card-subtitle mb-1">Rating - {{ song.average_song_rating() }}</p>
+                                <p class="card-subtitle mb-1"></p>Duration - {{ song.duration|format_duration }}
                             </div>
                         </div>
                         <div class="justify-content-between align-items-center">
-                            <a href="#" class="btn btn-dark">View Lyrics</a>
-                            <a href="#" class="btn btn-dark">Play</a>
-                            <a href="#" class="btn btn-dark">Rate</a>
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+                                    data-bs-target="#lyricsModal{{ song.id }}">View Lyrics
+                            </button>
+                            <a href="{{ url_for('play_song_page', song_id=song.id) }}" class="btn btn-dark">Play</a>
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+                                    data-bs-target="#ratingModal{{ song.id }}">Rate
+                            </button>
+                            <!-- Rate Modal -->
+                            <div class="modal fade" id="ratingModal{{ song.id }}" tabindex="-1"
+                                 aria-labelledby="ratingModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="ratingModalLabel">Rate {{ song.title }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('rate_page', song_id=song.id) }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="rating" class="form-label">Rating (1-5)</label>
+                                                    <input type="number" class="form-control" id="rating" name="rating"
+                                                           min="1" max="5" required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-dark">Submit Rating</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- View Lyrics Modal -->
+                            <div class="modal fade" id="lyricsModal{{ song.id }}" tabindex="-1"
+                                 aria-labelledby="lyricsModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="lyricsModalLabel">Song Lyrics
+                                                - {{ song.name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{ song.lyrics }}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <p>Date uploaded - {{ song.date_uploaded }}</p>
+                                            <p>Artist - {{ song.artist }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-        <br>
-        <div class="section mt-2">
-            <h2>Search Results - Albums</h2>
-            <div class="row">
-                {% for album in albums %}
-                <div class="card" style="width: 20rem;margin-right: 5px; margin-left: 5px;">
-                    <img src="./static/groove_logo_darkmode.png" class="card-img-top" alt="groove">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ album.name }}</h5>
-                        <p class="card-subtitle mb-2">Artist - {{ album.artist }}</p>
-                        <p class="card-subtitle mb-2">Release date - {{ album.release_date}}</p>
-                        <div>
-                            <a href="#" class="btn btn-dark">View Album</a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <br>
+    <div class="section mt-2">
+        <h2>Search Results - Albums</h2>
+        <div class="row">
+            {% for album in albums %}
+                <div class="card mx-1" style="width: 20rem;">
+                    <img src="./static/groove_logo_darkmode.png" class="card-img-top" alt="album_image">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ album.name }}</h5>
+                        <p class="card-subtitle mb-1">Artist - {{ album.artist }}</p>
+                    </div>
+                    <div class="mx-3">
+                        <a href="{{ url_for('album_songs_page', album_id=album.id) }}" class="btn btn-dark">View
+                            Album</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>

@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Delete Album Confirmation</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"></head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
 <body>
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh">
-        <div class="card w-50 text-center">
-            <div class="card-body">
-                <h3 class="card-title">Confirm Delete</h3>
-                <h5 class="card-text">Are you sure you want to delete the album "<strong>{{ album.name }}</strong>" by "<strong>{{ album.artist }}</strong>"?</h5>
-                <form action="{{ url_for('delete_album_post', album_id=album.id) }}" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-danger btn-lg">Confirm Delete</button>
-                </form>
-                <a href="{{ url_for('creator_home_page') }}" class="btn btn-dark btn-lg">Cancel</a>
-            </div>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh">
+    <div class="card w-50 text-center">
+        <div class="card-body">
+            <h3 class="card-title">Confirm Delete</h3>
+            <h5 class="card-text">Are you sure you want to delete the album "<strong>{{ album.name }}</strong>" by
+                "<strong>{{ album.artist }}</strong>"?</h5>
+            <form action="{{ url_for('delete_album_post', album_id=album.id) }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-danger btn-lg">Confirm Delete</button>
+            </form>
+            <a href="{{ url_for('creator_home_page') }}" class="btn btn-dark btn-lg">Cancel</a>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 </body>
 </html>
