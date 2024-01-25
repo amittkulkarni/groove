@@ -25,9 +25,9 @@ def register_page():
 
 @app.route('/register', methods=['POST'])
 def register_form():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    email = request.form.get('email')
+    username = request.form['username']
+    password = request.form['password']
+    email = request.form['email']
     if username == '' or email == '' or password == '':
         flash('Fields cannot be empty.')
         return redirect(url_for('register_page'))
@@ -54,8 +54,8 @@ def login_page():
 
 @app.route('/login', methods=['POST'])
 def login_form():
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = request.form['username']
+    password = request.form['password']
     user = User.query.filter_by(username=username).first()
     if username == '' or password == '':
         flash('Enter both username and password to login.')
@@ -188,6 +188,20 @@ def create_playlist_post():
     return redirect(url_for('playlists_page'))
 
 
+@app.route('/delete_playlist/<int:playlist_id>')
+def delete_playlist_page(playlist_id):
+    print(Playlist.query.filter_by(id=playlist_id, user_id=session['id']).first())
+    return render_template('delete_playlist.html', playlist=Playlist.query.filter_by(id=playlist_id, user_id=session['id']).first())
+
+
+@app.route('/delete_playlist/<int:playlist_id>', methods=['POST'])
+def delete_playlist_post(playlist_id):
+    playlist = Playlist.query.filter_by(id=playlist_id, user_id=session['id']).first()
+    db.session.delete(playlist)
+    db.session.commit()
+    return redirect(url_for('user_home_page'))
+
+
 @app.route('/user_home/view_album/<int:album_id>')
 def album_songs_page(album_id):
     user = User.query.get(session['id'])
@@ -253,7 +267,7 @@ def creator_home_upload():
         song_name = request.form['songTitle']
         song_artist = request.form['songArtist']
         genre_name = request.form['genre']
-        song_date_uploaded = request.form['songReleaseDate']
+        song_date_uploaded = request.form['SongReleaseDate']
         song_date_uploaded = datetime.strptime(song_date_uploaded, '%Y-%m-%d').date()
         lyrics = request.form['lyrics']
         genre = Genre.query.filter_by(name=genre_name).first()
@@ -473,7 +487,8 @@ def creators_bar_chart():
     creator_list = [creator[0] for creator in creators]
     upload_counts = [count[1] for count in creators]
     plt.bar(creator_list, upload_counts, color='skyblue')
-    plt.xlabel('Number of Songs Uploaded')
+    plt.ylabel('Number of Songs Uploaded')
     plt.title('Most Active Creators')
     plt.tight_layout()
     plt.savefig('C:/Users/DELL/Desktop/Groove/groove/static/top_creators_chart.png')
+    plt.close()

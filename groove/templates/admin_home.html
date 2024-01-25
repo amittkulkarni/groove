@@ -8,10 +8,11 @@
 <body class="bg-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('user_home_page') }}">Groove Admins</a>
+        <a class="navbar-brand" href="{{ url_for('admin_home_page') }}">Groove Admins</a>
         <div>
             <a class="btn btn-outline-light ms-2" href="{{ url_for('admin_tracks_page') }}">Tracks</a>
             <a class="btn btn-outline-light ms-2" href="{{ url_for('admin_users_page') }}">Users</a>
+            <a class="btn btn-outline-light ms-2" href="{{ url_for('logout') }}">Logout</a>
         </div>
     </div>
 </nav>

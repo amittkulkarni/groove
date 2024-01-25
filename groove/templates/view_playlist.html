@@ -16,10 +16,10 @@
             <a class="btn btn-outline-light" type="submit">Search</a>
         </form>
         <div>
-            {% if user.role_id == 1 %}
+            {% if user.role.name == 'user' %}
                 <a class="btn btn-outline-light ms-2" href="{{ url_for('creator_register_page') }}">Become a Creator</a>
             {% endif %}
-            {% if user.role_id == 2 %}
+            {% if user.role.name == 'creator' %}
                 <a class="btn btn-outline-light ms-2" href="{{ url_for('creator_home_page') }}">Creator Page</a>
             {% endif %}
         </div>
@@ -43,8 +43,8 @@
                     <h5 class="card-title">{{ playlist.name }}</h5>
                     <p class="card-subtitle mb-2">{{ playlist.description }}</p>
                     <div style="margin-top: auto;">
-                        <a href="{{ url_for('playlist_songs_page', playlist_id=playlist.id) }}" class="btn btn-dark">View
-                            your Playlist</a>
+                        <a href="{{ url_for('playlist_songs_page', playlist_id=playlist.id) }}" class="btn btn-dark">View Playlist</a>
+                        <a href="{{ url_for('delete_playlist_page', playlist_id=playlist.id) }}" class="btn btn-dark">Delete</a>
                     </div>
                 </div>
             </div>
