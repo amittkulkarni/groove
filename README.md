@@ -39,7 +39,7 @@ Groove is a music streaming web application developed using Flask for the Modern
    
 ## Usage
 
-- Access the application through http://localhost:5000 in your web browser.
+- Access the application through http://localhost:5000 in your browser.
 - Register for a new account or log in with existing credentials.
 - Browse the music library, create playlists, and enjoy streaming.
 
